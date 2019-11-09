@@ -8,13 +8,25 @@
 
 import UIKit
 
-class ImageViewController: UIViewController {
+class ImageViewController: UIViewController, UIScrollViewDelegate {
 
-    //var imageView = UIImageView()
+    var imageView = UIImageView()
+    
+    var image: UIImage? {
+        get {
+            return imageView.image
+        }
+        
+        set {
+            imageView.image = newValue
+            imageView.sizeToFit()
+            scrollView.contentSize = imageView.frame.size
+        }
+    }
     
     var imageURL: URL? {
         didSet {
-            imageView.image = nil
+            image = nil
             if view.window != nil { // We are on screen, then only fetch image
                 fetchImage()
             }
@@ -33,12 +45,24 @@ class ImageViewController: UIViewController {
             let urlContents = try? Data(contentsOf: url)
             
             if let imageData = urlContents {
-                imageView.image = UIImage(data: imageData)
+                image = UIImage(data: imageData)
             }
         }
     }
     
-    @IBOutlet weak var imageView: UIImageView!
+    @IBOutlet weak var scrollView: UIScrollView! {
+        didSet {
+            scrollView.minimumZoomScale = 1/25
+            scrollView.maximumZoomScale = 1
+            
+            scrollView.delegate = self
+            scrollView.addSubview(imageView)
+        }
+    }
+    
+    func viewForZooming(in scrollView: UIScrollView) -> UIView? {
+        return imageView
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
