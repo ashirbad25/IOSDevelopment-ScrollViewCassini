@@ -27,7 +27,11 @@ class CassiniViewController: UIViewController {
         
         if let identifier = segue.identifier {
             if let url = DemoURLs.NASA[identifier] {
-                if let imageVC = segue.destination as? ImageViewController {
+                var destination = segue.destination
+                if let navController = destination as? UINavigationController {
+                    destination = navController.visibleViewController ?? navController
+                }
+                if let imageVC = destination as? ImageViewController {
                     imageVC.imageURL = url
                     imageVC.title = (sender as? UIButton)?.currentTitle
                 }
@@ -35,4 +39,14 @@ class CassiniViewController: UIViewController {
         }
     }
 
+}
+
+extension UIViewController {
+    var contents: UIViewController {
+        if let navController = self as? UINavigationController {
+            return navController.visibleViewController ?? self
+        } else {
+            return self
+        }
+    }
 }
