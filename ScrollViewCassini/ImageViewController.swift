@@ -40,12 +40,18 @@ class ImageViewController: UIViewController, UIScrollViewDelegate {
         }
     }
     
+    // Its taking longed so can't execute this in main queue.
     private func fetchImage() {
+        
         if let url = imageURL {
-            let urlContents = try? Data(contentsOf: url)
-            
-            if let imageData = urlContents {
-                image = UIImage(data: imageData)
+            DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+                let urlContents = try? Data(contentsOf: url)
+                DispatchQueue.main.async {
+                    // Below code is doing UI things so dispath it back to main queue, also check if url is same as requested
+                    if let imageData = urlContents, url == self?.imageURL {
+                        self?.image = UIImage(data: imageData)
+                    }
+                }
             }
         }
     }
